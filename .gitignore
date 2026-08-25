@@ -1,0 +1,22 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 진단 결과 (민감 정보 포함 가능)
+output/
+*.log
+
+# 환경 변수 / 자격증명
+.env
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
