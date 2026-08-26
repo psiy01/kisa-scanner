@@ -1,0 +1,19 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y openssh-server sudo vim net-tools && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /var/run/sshd
+RUN echo 'root:toor1234' | chpasswd
+
+# ── 의도적 취약 설정 ──
+RUN sed -i 's/#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN useradd -m -s /bin/bash testuser && \
+    echo 'testuser:test1234' | chpasswd
+RUN touch /tmp/vuln_test.conf && chmod 777 /tmp/vuln_test.conf
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

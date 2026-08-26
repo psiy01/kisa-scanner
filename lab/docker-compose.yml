@@ -1,0 +1,15 @@
+services:
+  ubuntu-target:
+    build:
+      context: .
+      dockerfile: Dockerfile.ubuntu
+    container_name: kisa-ubuntu
+    hostname: ubuntu-target
+    ports:
+      - "2222:22"
+    networks:
+      - kisa-lab
+
+networks:
+  kisa-lab:
+    driver: bridge
