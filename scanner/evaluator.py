@@ -17,6 +17,20 @@ def evaluate(output: str, exit_code: int, spec: dict) -> Status:
         matched = not re.search(spec["pattern"], output)
     elif eval_type == "exit_code":
         matched = exit_code == spec["expected"]
+    elif eval_type == "numeric_compare":
+        found = re.search(spec.get("extract", r"(\d+)"), output)
+        if not found:
+            return Status.ERROR
+        value = int(found.group(1))
+        op = spec["operator"]
+        expected = spec["value"]
+        matched = {
+            ">=": value >= expected,
+            "<=": value <= expected,
+            ">": value > expected,
+            "<": value < expected,
+            "==": value == expected,
+        }.get(op, False)
     else:
         return Status.ERROR
 

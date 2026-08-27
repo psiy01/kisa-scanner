@@ -1,0 +1,25 @@
+id: U-10
+category: 계정관리
+title: 시스템 계정의 불필요한 셸 부여 점검
+severity: medium
+os: [ubuntu]
+
+description: |
+  daemon, bin, sys 등 로그인이 필요 없는 시스템 계정에 로그인 가능한
+  셸이 부여되어 있으면, 계정 탈취 시 셸 접근 경로가 된다.
+
+check:
+  type: command
+  command: "awk -F: '($1==\"daemon\" || $1==\"bin\" || $1==\"sys\" || $1==\"adm\" || $1==\"lp\") && $7 !~ /(nologin|false)$/ {print $1\":\"$7}' /etc/passwd"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  해당 계정의 셸을 /usr/sbin/nologin 또는 /bin/false 로 변경한다.
+  예) usermod -s /usr/sbin/nologin daemon
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

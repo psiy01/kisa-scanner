@@ -1,0 +1,26 @@
+id: U-09
+category: 계정관리
+title: 패스워드 만료 경고 기간 설정
+severity: low
+os: [ubuntu]
+
+description: |
+  만료 경고가 없으면 사용자가 갑작스럽게 계정 잠금을 겪고,
+  이는 관리자 우회 요청이나 임시 계정 남발로 이어질 수 있다.
+
+check:
+  type: command
+  command: "grep -E '^\\s*PASS_WARN_AGE' /etc/login.defs | grep -v '^\\s*#'"
+
+evaluate:
+  type: numeric_compare
+  extract: 'PASS_WARN_AGE\s+(\d+)'
+  operator: ">="
+  value: 7
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/login.defs 파일에서 PASS_WARN_AGE 값을 7 이상으로 설정한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

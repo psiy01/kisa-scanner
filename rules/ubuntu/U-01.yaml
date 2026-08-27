@@ -10,7 +10,7 @@ description: |
 
 check:
   type: command
-  command: "grep -Ei '^\\s*PermitRootLogin' /etc/ssh/sshd_config"
+  command: "grep -Ei '^\\s*PermitRootLogin' /etc/ssh/sshd_config | grep -v '^\\s*#'"
 
 evaluate:
   type: regex_match

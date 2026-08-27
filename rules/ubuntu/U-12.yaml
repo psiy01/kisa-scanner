@@ -1,0 +1,26 @@
+id: U-12
+category: 계정관리
+title: 세션 타임아웃 설정
+severity: low
+os: [ubuntu]
+
+description: |
+  자리를 비운 사이 로그인된 세션이 유지되면 물리적 접근을 통한
+  무단 사용이 가능하다. 일정 시간 후 자동 로그아웃되어야 한다.
+
+check:
+  type: command
+  command: "grep -rE '^\\s*(export\\s+)?TMOUT=' /etc/profile /etc/profile.d/ 2>/dev/null | grep -v '^\\s*#'"
+
+evaluate:
+  type: numeric_compare
+  extract: 'TMOUT=(\d+)'
+  operator: "<="
+  value: 600
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/profile 에 TMOUT=600 과 export TMOUT 을 추가한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드
