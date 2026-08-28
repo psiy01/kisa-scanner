@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+﻿FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -9,11 +9,15 @@ RUN apt-get update && \
 RUN mkdir -p /var/run/sshd
 RUN echo 'root:toor1234' | chpasswd
 
-# ── 의도적 취약 설정 ──
 RUN sed -i 's/#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN useradd -m -s /bin/bash testuser && \
     echo 'testuser:test1234' | chpasswd
 RUN touch /tmp/vuln_test.conf && chmod 777 /tmp/vuln_test.conf
+
+RUN chmod 644 /etc/shadow
+RUN mkdir -p /opt/app && touch /opt/app/config.ini && chmod 777 /opt/app/config.ini
+RUN touch /opt/orphan.txt && chown 9999:9999 /opt/orphan.txt
+RUN cp /bin/find /usr/local/bin/find-suid && chmod 4755 /usr/local/bin/find-suid
 
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]

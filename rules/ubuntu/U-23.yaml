@@ -1,0 +1,25 @@
+id: U-23
+category: 파일및디렉터리관리
+title: PATH 환경변수에 현재 디렉터리 포함 여부
+severity: medium
+os: [ubuntu]
+
+description: |
+  PATH에 "." 이나 빈 항목이 포함되면 현재 디렉터리의 파일이
+  먼저 실행될 수 있다. 공격자가 ls, cd 등의 이름으로 악성 파일을
+  심어두면 관리자가 실행하게 되는 트로이목마 공격이 가능하다.
+
+check:
+  type: command
+  command: "echo $PATH"
+
+evaluate:
+  type: regex_match
+  pattern: '(^|:)\.?(:|$)'
+  on_match: vulnerable
+  on_empty: error
+
+remediation: |
+  /etc/profile 등에서 PATH 설정 시 "." 및 빈 항목을 제거한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

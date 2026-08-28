@@ -31,6 +31,14 @@ def evaluate(output: str, exit_code: int, spec: dict) -> Status:
             "<": value < expected,
             "==": value == expected,
         }.get(op, False)
+    elif eval_type == "permission_check":
+        found = re.search(r'(\d{3,4})', output)
+        if not found:
+            return Status.ERROR
+        actual = int(found.group(1)[-3:], 8)
+        maximum = int(str(spec["max_permission"]), 8)
+        # 허용 범위를 넘는 비트가 하나라도 켜져 있으면 위반
+        matched = (actual & ~maximum) == 0
     else:
         return Status.ERROR
 

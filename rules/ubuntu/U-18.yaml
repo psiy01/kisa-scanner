@@ -1,0 +1,26 @@
+id: U-18
+category: 파일및디렉터리관리
+title: 불필요한 SUID/SGID 설정 파일 점검
+severity: high
+os: [ubuntu]
+
+description: |
+  SUID가 설정된 파일은 실행 시 소유자(주로 root) 권한으로 동작한다.
+  find, vi, chmod 등에 SUID가 부여되면 일반 사용자가 이를 이용해
+  root 권한을 획득할 수 있다.
+
+check:
+  type: command
+  command: "find /usr/local/bin /usr/local/sbin -type f -perm -4000 2>/dev/null"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  불필요한 SUID 비트를 제거한다.
+  chmod -s <파일경로>
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

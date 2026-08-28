@@ -1,0 +1,25 @@
+id: U-17
+category: 파일및디렉터리관리
+title: /etc/services 파일 소유자 및 권한 설정
+severity: low
+os: [ubuntu]
+
+description: |
+  서비스와 포트 매핑 정보를 담은 파일로, 변조 시 서비스 오동작이나
+  비정상 포트 사용을 유발할 수 있다. 권한은 644 이하여야 한다.
+
+check:
+  type: command
+  command: "stat -c '%a' /etc/services"
+
+evaluate:
+  type: permission_check
+  max_permission: 644
+  on_match: safe
+  on_empty: error
+
+remediation: |
+  chown root:root /etc/services
+  chmod 644 /etc/services
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드
