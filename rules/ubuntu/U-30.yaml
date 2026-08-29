@@ -1,0 +1,27 @@
+id: U-30
+category: 서비스관리
+title: SNMP 서비스 구동 및 기본 커뮤니티 스트링 사용 여부
+severity: high
+os: [ubuntu]
+
+description: |
+  SNMP의 기본 커뮤니티 스트링 public/private가 그대로 사용되면
+  누구나 시스템 정보를 조회하거나 설정을 변경할 수 있다.
+
+check:
+  type: command
+  requires: [ss]
+  command: "ss -uln 2>/dev/null | awk '{print $4}' | grep -E ':161$'"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  SNMP가 불필요하면 서비스를 중지한다. 필요한 경우
+  /etc/snmp/snmpd.conf 에서 커뮤니티 스트링을 추측하기 어려운 값으로 변경하고
+  SNMPv3 인증을 사용한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

@@ -1,0 +1,27 @@
+id: U-25
+category: 서비스관리
+title: telnet 서비스 비활성화
+severity: high
+os: [ubuntu]
+
+description: |
+  telnet은 아이디, 패스워드, 명령어를 모두 평문으로 전송한다.
+  네트워크 스니핑으로 자격증명이 그대로 노출되므로 SSH로 대체해야 한다.
+
+check:
+  type: command
+  requires: [ss]
+  command: "ss -tln 2>/dev/null | awk '{print $4}' | grep -E ':23$'"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  telnet 서비스를 중지하고 패키지를 제거한다.
+  systemctl disable --now inetd
+  apt-get remove telnetd
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

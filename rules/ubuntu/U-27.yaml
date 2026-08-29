@@ -1,0 +1,26 @@
+id: U-27
+category: 서비스관리
+title: r 계열 서비스(rsh, rlogin, rexec) 비활성화
+severity: high
+os: [ubuntu]
+
+description: |
+  rsh, rlogin, rexec는 .rhosts 파일 기반 신뢰 관계로 인증 없이 접속을
+  허용한다. IP 스푸핑에 취약해 사용이 금지된다.
+
+check:
+  type: command
+  requires: [ss]
+  command: "ss -tln 2>/dev/null | awk '{print $4}' | grep -E ':(512|513|514)$'"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  r 계열 서비스를 제거하고 SSH로 대체한다.
+  apt-get remove rsh-server
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드
