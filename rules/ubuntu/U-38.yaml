@@ -1,0 +1,24 @@
+id: U-38
+category: 로그관리
+title: 로그 데몬(rsyslog) 구동 여부
+severity: high
+os: [ubuntu]
+
+description: |
+  로그 데몬이 동작하지 않으면 시스템 이벤트가 기록되지 않아
+  침해사고 발생 시 원인 분석과 추적이 불가능해진다.
+
+check:
+  type: command
+  command: "ps -eo comm | grep -x 'rsyslogd\\|syslog-ng'"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  systemctl enable --now rsyslog
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

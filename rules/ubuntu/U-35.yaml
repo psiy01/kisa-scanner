@@ -1,0 +1,29 @@
+id: U-35
+category: 패치관리
+title: 최신 보안 패치 적용 여부
+severity: high
+os: [ubuntu]
+
+description: |
+  적용되지 않은 보안 패치가 존재하면 공개된 취약점(CVE)을 통해
+  시스템이 침해될 수 있다. 특히 원격 코드 실행 취약점은
+  패치 공개 직후 자동화된 공격 도구가 배포되는 경우가 많다.
+
+check:
+  type: command
+  requires: [apt-get]
+  command: "apt-get -s upgrade 2>/dev/null | grep -ciE '^Inst.*security' || echo 0"
+
+evaluate:
+  type: numeric_compare
+  extract: '(\d+)'
+  operator: "=="
+  value: 0
+  on_match: safe
+  on_empty: error
+
+remediation: |
+  apt-get update && apt-get upgrade
+  정기적인 패치 적용 절차를 수립하고 적용 이력을 관리한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

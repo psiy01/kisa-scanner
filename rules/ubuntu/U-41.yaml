@@ -1,0 +1,25 @@
+id: U-41
+category: 로그관리
+title: 로그 로테이션 설정 여부
+severity: low
+os: [ubuntu]
+
+description: |
+  로그 로테이션이 없으면 로그 파일이 무한히 커져 디스크를 고갈시키고,
+  결국 로그 기록이 중단되어 가용성과 추적성이 모두 훼손된다.
+
+check:
+  type: command
+  command: "ls /etc/logrotate.conf /etc/logrotate.d/ 2>/dev/null | head -5"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  logrotate 패키지를 설치하고 /etc/logrotate.conf 에
+  보관 주기와 세대 수를 설정한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

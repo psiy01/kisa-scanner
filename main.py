@@ -5,6 +5,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.table import Table
 
+from reporter import html_reporter
 from scanner.engine import load_rules, run_scan
 from scanner.executor import SSHExecutor
 from scanner.models import Status
@@ -54,6 +55,13 @@ def main() -> None:
 
     vuln = sum(1 for r in results if r.status is Status.VULNERABLE)
     console.print(f"\n취약 {vuln}건 / 전체 {len(results)}건")
+
+    report_path = html_reporter.generate(
+        results,
+        target=f"{args.host}:{args.port}",
+        output_path=Path("output") / "report.html",
+    )
+    console.print(f"[bold]리포트 생성: {report_path}[/bold]")
 
 
 if __name__ == "__main__":

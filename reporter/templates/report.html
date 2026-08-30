@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>서버 취약점 진단 보고서 - {{ target }}</title>
+<style>
+  :root {
+    --high: #d63031; --medium: #e17055; --low: #fdcb6e;
+    --safe: #00b894; --error: #b2bec3; --ink: #2d3436; --line: #dfe6e9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Malgun Gothic", sans-serif;
+    margin: 0; padding: 32px; background: #f5f6fa; color: var(--ink);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  header { border-bottom: 3px solid var(--ink); padding-bottom: 16px; margin-bottom: 28px; }
+  h1 { margin: 0 0 8px; font-size: 26px; }
+  .meta { color: #636e72; font-size: 14px; }
+  h2 { font-size: 19px; margin: 36px 0 14px; padding-left: 10px;
+       border-left: 4px solid var(--ink); }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .card { background: #fff; border-radius: 8px; padding: 18px; text-align: center;
+          border: 1px solid var(--line); }
+  .card .num { font-size: 30px; font-weight: 700; }
+  .card .lbl { font-size: 13px; color: #636e72; margin-top: 4px; }
+  .num.vuln { color: var(--high); }
+  .num.safe { color: var(--safe); }
+  .num.err  { color: var(--error); }
+  .bar { display: flex; height: 26px; border-radius: 4px; overflow: hidden;
+         margin: 10px 0 6px; background: var(--line); }
+  .bar span { display: block; }
+  .legend { font-size: 13px; color: #636e72; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+              margin: 0 5px 0 14px; }
+  table { width: 100%; border-collapse: collapse; background: #fff;
+          border: 1px solid var(--line); font-size: 14px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { background: #f1f2f6; font-weight: 600; }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 11px;
+         font-size: 12px; font-weight: 600; color: #fff; }
+  .tag.high { background: var(--high); }
+  .tag.medium { background: var(--medium); }
+  .tag.low { background: var(--low); color: var(--ink); }
+  .tag.vuln { background: var(--high); }
+  .tag.ok { background: var(--safe); }
+  .tag.na { background: var(--error); }
+  details { background: #fff; border: 1px solid var(--line); border-radius: 6px;
+            margin-bottom: 8px; }
+  summary { padding: 12px 16px; cursor: pointer; font-weight: 600; }
+  summary:hover { background: #f1f2f6; }
+  .body { padding: 4px 16px 16px; border-top: 1px solid var(--line); }
+  .body h4 { margin: 14px 0 6px; font-size: 14px; color: #636e72; }
+  pre { background: #2d3436; color: #dfe6e9; padding: 12px; border-radius: 5px;
+        overflow-x: auto; font-size: 12.5px; white-space: pre-wrap;
+        word-break: break-all; margin: 0; }
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
+           font-size: 12.5px; color: #636e72; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>서버 취약점 진단 보고서</h1>
+  <div class="meta">
+    진단 대상: <strong>{{ target }}</strong> &nbsp;|&nbsp;
+    진단 일시: {{ scanned_at }} &nbsp;|&nbsp;
+    기준: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드
+  </div>
+</header>
+
+<h2>진단 요약</h2>
+<div class="cards">
+  <div class="card"><div class="num">{{ summary.total }}</div><div class="lbl">전체 항목</div></div>
+  <div class="card"><div class="num vuln">{{ summary.vulnerable }}</div><div class="lbl">취약</div></div>
+  <div class="card"><div class="num safe">{{ summary.safe }}</div><div class="lbl">양호</div></div>
+  <div class="card"><div class="num err">{{ summary.error }}</div><div class="lbl">점검불가</div></div>
+</div>
+
+<h2>준수율 및 위험도 분포</h2>
+<p style="margin:0 0 4px;">
+  점검 가능 항목 기준 준수율: <strong>{{ summary.compliance }}%</strong>
+  <span style="color:#636e72;font-size:13px;">(점검불가 {{ summary.error }}건 제외)</span>
+</p>
+{% set sev = summary.severity %}
+{% set sev_total = sev.high + sev.medium + sev.low %}
+{% if sev_total > 0 %}
+<div class="bar">
+  <span style="width:{{ (sev.high / sev_total * 100)|round(1) }}%;background:#d63031"></span>
+  <span style="width:{{ (sev.medium / sev_total * 100)|round(1) }}%;background:#e17055"></span>
+  <span style="width:{{ (sev.low / sev_total * 100)|round(1) }}%;background:#fdcb6e"></span>
+</div>
+<div class="legend">
+  <i style="background:#d63031"></i>상 {{ sev.high }}건
+  <i style="background:#e17055"></i>중 {{ sev.medium }}건
+  <i style="background:#fdcb6e"></i>하 {{ sev.low }}건
+</div>
+{% endif %}
+
+<h2>카테고리별 현황</h2>
+<table>
+  <tr><th>카테고리</th><th>전체</th><th>취약</th><th>취약률</th></tr>
+  {% for name, c in summary.categories.items() %}
+  <tr>
+    <td>{{ name }}</td>
+    <td>{{ c.total }}</td>
+    <td>{{ c.vulnerable }}</td>
+    <td>{{ (c.vulnerable / c.total * 100)|round(1) }}%</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>조치 우선순위</h2>
+{% if priority %}
+<table>
+  <tr><th style="width:70px;">순위</th><th style="width:70px;">ID</th>
+      <th>점검 항목</th><th style="width:80px;">위험도</th></tr>
+  {% for p in priority %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ p.id }}</td>
+    <td>{{ p.title }}</td>
+    <td><span class="tag {{ p.severity }}">{{ p.severity }}</span></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>취약 항목이 없습니다.</p>
+{% endif %}
+
+<h2>상세 진단 결과</h2>
+{% for i in items %}
+{% set cls = 'vuln' if i.status == '취약' else ('ok' if i.status == '양호' else 'na') %}
+<details>
+  <summary>
+    <span class="tag {{ cls }}">{{ i.status }}</span>
+    &nbsp;{{ i.id }} · {{ i.title }}
+    <span style="float:right;font-weight:400;color:#636e72;font-size:13px;">
+      {{ i.category }} / {{ i.severity }}
+    </span>
+  </summary>
+  <div class="body">
+    <h4>취약점 설명</h4>
+    <p>{{ i.description }}</p>
+    <h4>점검 명령</h4>
+    <pre>{{ i.command }}</pre>
+    <h4>점검 결과 (증적)</h4>
+    <pre>{{ i.raw_output if i.raw_output else (i.message or '(출력 없음)') }}</pre>
+    {% if i.status == '취약' %}
+    <h4>조치 방법</h4>
+    <p style="white-space:pre-line;">{{ i.remediation }}</p>
+    {% endif %}
+  </div>
+</details>
+{% endfor %}
+
+<footer>
+  본 보고서는 자동 진단 도구에 의해 생성되었습니다.
+  일부 항목은 시스템 맥락에 대한 담당자 확인이 필요합니다.<br>
+  진단은 소유하거나 명시적 허가를 받은 시스템에 대해서만 수행되어야 합니다.
+</footer>
+
+</div>
+</body>
+</html>

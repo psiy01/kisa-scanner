@@ -1,0 +1,26 @@
+id: U-43
+category: 로그관리
+title: 로그인 실패 기록 파일 존재 여부
+severity: medium
+os: [ubuntu]
+
+description: |
+  btmp 파일에 로그인 실패 기록이 남아야 무차별 대입 공격 시도를
+  탐지할 수 있다.
+
+check:
+  type: command
+  command: "ls -l /var/log/btmp 2>/dev/null"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  touch /var/log/btmp
+  chown root:utmp /var/log/btmp
+  chmod 660 /var/log/btmp
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

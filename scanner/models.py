@@ -43,3 +43,19 @@ class Result:
     status: Status
     raw_output: str
     message: str = ""
+
+def result_to_dict(result: "Result") -> dict:
+    """Result 객체를 JSON 직렬화 가능한 딕셔너리로 변환."""
+    return {
+        "id": result.rule.id,
+        "category": result.rule.category,
+        "title": result.rule.title,
+        "severity": result.rule.severity,
+        "status": result.status.value,
+        "description": result.rule.description,
+        "remediation": result.rule.remediation,
+        "reference": result.rule.reference,
+        "command": result.rule.check.get("command", ""),
+        "raw_output": result.raw_output,
+        "message": result.message,
+    }
