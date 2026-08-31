@@ -77,3 +77,44 @@ def generate(results: list[Result], target: str, output_path: Path) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html, encoding="utf-8")
     return output_path
+
+def generate_comparison(
+    before: dict, after: dict, output_path: Path
+) -> Path:
+    """전후 비교 리포트를 생성."""
+    template_dir = Path(__file__).parent / "templates"
+    env = Environment(loader=FileSystemLoader(template_dir), autoescape=True)
+    template = env.get_template("comparison.html")
+
+    fixed, remaining, regressed = [], [], []
+    for rid, b in before.items():
+        a = after.get(rid)
+        if a is None:
+            continue
+        pair = {"before": b, "after": a}
+        if b["status"] == "취약" and a["status"] == "양호":
+            fixed.append(pair)
+        elif b["status"] == "취약" and a["status"] == "취약":
+            remaining.append(pair)
+        elif b["status"] == "양호" and a["status"] == "취약":
+            regressed.append(pair)
+
+    b_vuln = sum(1 for r in before.values() if r["status"] == "취약")
+    a_vuln = sum(1 for r in after.values() if r["status"] == "취약")
+    rate = round((b_vuln - a_vuln) / b_vuln * 100, 1) if b_vuln else 0.0
+
+    html = template.render(
+        generated_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        before_vuln=b_vuln,
+        after_vuln=a_vuln,
+        rate=rate,
+        fixed=sorted(fixed, key=lambda p: SEVERITY_ORDER.get(
+            p["after"]["severity"], 9)),
+        remaining=sorted(remaining, key=lambda p: SEVERITY_ORDER.get(
+            p["after"]["severity"], 9)),
+        regressed=regressed,
+    )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(html, encoding="utf-8")
+    return output_path

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>취약점 조치 결과 비교</title>
+<style>
+  body { font-family: -apple-system, "Malgun Gothic", sans-serif;
+         margin: 0; padding: 32px; background: #f5f6fa; color: #2d3436; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  header { border-bottom: 3px solid #2d3436; padding-bottom: 14px; margin-bottom: 26px; }
+  h1 { margin: 0 0 6px; font-size: 25px; }
+  .meta { color: #636e72; font-size: 14px; }
+  h2 { font-size: 18px; margin: 32px 0 12px; padding-left: 10px;
+       border-left: 4px solid #2d3436; }
+  .hero { background: #fff; border: 1px solid #dfe6e9; border-radius: 10px;
+          padding: 26px; display: flex; align-items: center; justify-content: center;
+          gap: 34px; }
+  .stat { text-align: center; }
+  .stat .n { font-size: 42px; font-weight: 700; line-height: 1; }
+  .stat .l { font-size: 13px; color: #636e72; margin-top: 6px; }
+  .arrow { font-size: 28px; color: #b2bec3; }
+  .n.before { color: #d63031; }
+  .n.after { color: #e17055; }
+  .n.rate { color: #00b894; }
+  table { width: 100%; border-collapse: collapse; background: #fff;
+          border: 1px solid #dfe6e9; font-size: 14px; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid #dfe6e9; }
+  th { background: #f1f2f6; font-weight: 600; }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 11px;
+         font-size: 12px; font-weight: 600; color: #fff; }
+  .tag.high { background: #d63031; }
+  .tag.medium { background: #e17055; }
+  .tag.low { background: #fdcb6e; color: #2d3436; }
+  .vuln { color: #d63031; font-weight: 600; }
+  .ok { color: #00b894; font-weight: 600; }
+  footer { margin-top: 38px; padding-top: 14px; border-top: 1px solid #dfe6e9;
+           font-size: 12.5px; color: #636e72; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+  <h1>취약점 조치 결과 비교</h1>
+  <div class="meta">생성 일시: {{ generated_at }}</div>
+</header>
+
+<div class="hero">
+  <div class="stat"><div class="n before">{{ before_vuln }}</div><div class="l">조치 전 취약</div></div>
+  <div class="arrow">→</div>
+  <div class="stat"><div class="n after">{{ after_vuln }}</div><div class="l">조치 후 취약</div></div>
+  <div class="arrow">|</div>
+  <div class="stat"><div class="n rate">{{ rate }}%</div><div class="l">개선율</div></div>
+</div>
+
+<h2>조치 완료 ({{ fixed|length }}건)</h2>
+<table>
+  <tr><th style="width:70px;">ID</th><th>점검 항목</th>
+      <th style="width:80px;">위험도</th><th style="width:150px;">변화</th></tr>
+  {% for p in fixed %}
+  <tr>
+    <td>{{ p.after.id }}</td>
+    <td>{{ p.after.title }}</td>
+    <td><span class="tag {{ p.after.severity }}">{{ p.after.severity }}</span></td>
+    <td><span class="vuln">취약</span> → <span class="ok">양호</span></td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h2>미조치 ({{ remaining|length }}건)</h2>
+<table>
+  <tr><th style="width:70px;">ID</th><th>점검 항목</th>
+      <th style="width:80px;">위험도</th><th>현재 상태</th></tr>
+  {% for p in remaining %}
+  <tr>
+    <td>{{ p.after.id }}</td>
+    <td>{{ p.after.title }}</td>
+    <td><span class="tag {{ p.after.severity }}">{{ p.after.severity }}</span></td>
+    <td>{{ p.after.raw_output[:80] if p.after.raw_output else '-' }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% if regressed %}
+<h2 style="color:#d63031;">악화 ({{ regressed|length }}건)</h2>
+<table>
+  <tr><th style="width:70px;">ID</th><th>점검 항목</th><th style="width:150px;">변화</th></tr>
+  {% for p in regressed %}
+  <tr>
+    <td>{{ p.after.id }}</td>
+    <td>{{ p.after.title }}</td>
+    <td><span class="ok">양호</span> → <span class="vuln">취약</span></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<footer>
+  미조치 항목은 환경 제약, 위험 수용, 해당 없음 등의 사유로 구분하여
+  별도 관리해야 합니다.
+</footer>
+
+</div>
+</body>
+</html>
