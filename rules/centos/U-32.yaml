@@ -1,0 +1,25 @@
+id: U-32
+category: 서비스관리
+title: cron 서비스 사용자 접근 통제
+severity: medium
+os: [ubuntu]
+
+description: |
+  cron.allow 또는 cron.deny 파일로 예약 작업 등록 권한을 통제해야 한다.
+  두 파일이 모두 없으면 모든 사용자가 cron을 사용할 수 있다.
+
+check:
+  type: command
+  command: "ls /etc/cron.allow /etc/cron.deny 2>/dev/null"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/cron.allow 파일을 생성해 허용할 사용자만 등록하고
+  권한을 640 이하로 설정한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

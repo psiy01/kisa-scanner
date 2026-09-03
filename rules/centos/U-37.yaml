@@ -1,0 +1,25 @@
+id: U-37
+category: 패치관리
+title: 자동 보안 업데이트 설정 여부
+severity: medium
+os: [ubuntu]
+
+description: |
+  자동 보안 업데이트가 비활성화되어 있으면 패치 적용이 지연되어
+  취약점 노출 기간이 길어진다.
+
+check:
+  type: command
+  command: "systemctl is-enabled dnf-automatic.timer 2>/dev/null"
+
+evaluate:
+  type: regex_match
+  pattern: '^enabled'
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  apt-get install unattended-upgrades
+  dpkg-reconfigure --priority=low unattended-upgrades
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

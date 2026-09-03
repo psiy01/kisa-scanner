@@ -1,0 +1,19 @@
+FROM rockylinux:9
+
+RUN dnf install -y openssh-server sudo passwd iproute procps-ng \
+    cronie rsyslog logrotate \
+    && dnf clean all
+
+RUN ssh-keygen -A
+RUN rm -f /etc/ssh/sshd_config.d/*.conf
+RUN echo 'root:toor1234' | chpasswd
+
+RUN sed -i 's/#\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+RUN useradd -m -s /bin/bash testuser && echo 'testuser:test1234' | chpasswd
+RUN chmod 644 /etc/shadow
+RUN mkdir -p /opt/app && touch /opt/app/config.ini && chmod 777 /opt/app/config.ini
+RUN cp /bin/find /usr/local/bin/find-suid && chmod 4755 /usr/local/bin/find-suid
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

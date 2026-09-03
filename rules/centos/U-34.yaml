@@ -1,0 +1,25 @@
+id: U-34
+category: 서비스관리
+title: 로그의 원격 서버 전송 설정
+severity: medium
+os: [ubuntu]
+
+description: |
+  로그를 로컬에만 저장하면 침해 시 공격자가 로그를 삭제해
+  흔적을 지울 수 있다. 원격 로그 서버로 실시간 전송해야 한다.
+
+check:
+  type: command
+  command: "grep -rE '^\\s*[^#]*@@?[0-9a-zA-Z]' /etc/rsyslog.conf /etc/rsyslog.d/ 2>/dev/null"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/rsyslog.conf 에 *.* @@원격서버IP:514 형식으로
+  원격 전송 설정을 추가한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

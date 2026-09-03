@@ -1,0 +1,24 @@
+id: U-04
+category: 계정관리
+title: 패스워드가 설정되지 않은 계정 존재 여부
+severity: high
+os: [ubuntu]
+
+description: |
+  패스워드 없이 로그인 가능한 계정이 존재하면 누구나 시스템에 접근할 수 있다.
+  /etc/shadow 의 두 번째 필드가 비어 있으면 패스워드 미설정 상태다.
+
+check:
+  type: command
+  command: "awk -F: '($2 == \"\") {print $1}' /etc/shadow"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  해당 계정에 패스워드를 설정하거나, 불필요한 계정이면 삭제한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

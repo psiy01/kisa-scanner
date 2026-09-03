@@ -1,0 +1,28 @@
+id: U-02
+category: 계정관리
+title: 패스워드 최소 길이 설정
+severity: medium
+os: [centos]
+
+description: |
+  RHEL 계열은 login.defs의 PASS_MIN_LEN을 지원하지 않으며
+  pam_pwquality 모듈의 minlen 설정으로 최소 길이를 통제한다.
+  설정이 없으면 기본값에 의존하게 되어 명시적 관리가 이루어지지 않는다.
+
+check:
+  type: command
+  command: "grep -E '^\\s*minlen\\s*=' /etc/security/pwquality.conf 2>/dev/null"
+
+evaluate:
+  type: numeric_compare
+  extract: 'minlen\s*=\s*(\d+)'
+  operator: ">="
+  value: 8
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/security/pwquality.conf 에서 minlen = 8 이상으로 설정하고
+  주석을 해제한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

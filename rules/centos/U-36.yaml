@@ -1,0 +1,25 @@
+id: U-36
+category: 패치관리
+title: 커널 버전 정보 노출 및 최신 여부
+severity: medium
+os: [ubuntu]
+
+description: |
+  오래된 커널은 로컬 권한 상승(LPE) 취약점에 노출된다.
+  Dirty COW, Dirty Pipe 등 공개된 익스플로잇이 다수 존재한다.
+
+check:
+  type: command
+  command: "uname -r"
+
+evaluate:
+  type: regex_match
+  pattern: '^[5-9]\.|^[1-9][0-9]+\.'
+  on_match: safe
+  on_empty: error
+
+remediation: |
+  커널을 최신 버전으로 업데이트하고 재부팅한다.
+  apt-get install --only-upgrade linux-generic
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

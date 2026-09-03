@@ -1,0 +1,28 @@
+id: U-42
+category: 로그관리
+title: 로그 보관 기간 설정
+severity: medium
+os: [ubuntu]
+
+description: |
+  침해사고는 발생 후 수개월이 지나 발견되는 경우가 많다.
+  보관 기간이 짧으면 사고 시점의 로그가 이미 삭제되어 분석이 불가능하다.
+  주요정보통신기반시설은 최소 6개월 보관이 요구된다.
+
+check:
+  type: command
+  command: "grep -E '^\\s*rotate\\s+[0-9]+' /etc/logrotate.conf | head -1"
+
+evaluate:
+  type: numeric_compare
+  extract: 'rotate\s+(\d+)'
+  operator: ">="
+  value: 24
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/logrotate.conf 에서 rotate 값을 24 이상(주 단위 기준 6개월)으로
+  설정한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

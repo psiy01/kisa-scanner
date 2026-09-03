@@ -1,0 +1,26 @@
+id: U-08
+category: 계정관리
+title: 패스워드 최소 사용 기간 설정
+severity: low
+os: [ubuntu]
+
+description: |
+  최소 사용 기간이 0이면 사용자가 패스워드를 즉시 여러 번 변경해
+  기존 패스워드로 되돌릴 수 있다. 이력 정책이 무력화된다.
+
+check:
+  type: command
+  command: "grep -E '^\\s*PASS_MIN_DAYS' /etc/login.defs | grep -v '^\\s*#'"
+
+evaluate:
+  type: numeric_compare
+  extract: 'PASS_MIN_DAYS\s+(\d+)'
+  operator: ">="
+  value: 1
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/login.defs 파일에서 PASS_MIN_DAYS 값을 1 이상으로 설정한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

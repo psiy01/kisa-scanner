@@ -1,0 +1,26 @@
+id: U-13
+category: 파일및디렉터리관리
+title: /etc/passwd 파일 소유자 및 권한 설정
+severity: medium
+os: [ubuntu]
+
+description: |
+  /etc/passwd 는 계정 목록을 담고 있어 읽기는 허용되어야 하지만,
+  일반 사용자가 수정할 수 있으면 계정 정보 변조가 가능하다.
+  소유자는 root, 권한은 644 이하여야 한다.
+
+check:
+  type: command
+  command: "stat -c '%a' /etc/passwd"
+
+evaluate:
+  type: permission_check
+  max_permission: 644
+  on_match: safe
+  on_empty: error
+
+remediation: |
+  chown root:root /etc/passwd
+  chmod 644 /etc/passwd
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

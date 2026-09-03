@@ -10,6 +10,17 @@ services:
     networks:
       - kisa-lab
 
+  rocky-target:
+    build:
+      context: .
+      dockerfile: Dockerfile.rocky
+    container_name: kisa-rocky
+    hostname: rocky-target
+    ports:
+      - "2223:22"
+    networks:
+      - kisa-lab
+
 networks:
   kisa-lab:
     driver: bridge

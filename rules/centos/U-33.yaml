@@ -1,0 +1,26 @@
+id: U-33
+category: 서비스관리
+title: DNS 서비스 구동 여부 점검
+severity: medium
+os: [ubuntu]
+
+description: |
+  불필요한 DNS 서버가 구동 중이면 재귀 질의를 허용하는 경우
+  DNS 증폭 공격(DDoS)의 경유지로 악용될 수 있다.
+
+check:
+  type: command
+  requires: [ss]
+  command: "ss -ulnt 2>/dev/null | awk '{print $4}' | grep -E ':53$'"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  DNS 서비스가 불필요하면 중지한다. 필요한 경우
+  allow-recursion 을 내부 대역으로 제한한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

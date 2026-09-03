@@ -1,0 +1,25 @@
+id: U-07
+category: 계정관리
+title: su 명령 사용 제한
+severity: medium
+os: [ubuntu]
+
+description: |
+  su 명령을 아무나 사용할 수 있으면 root 패스워드 무차별 대입 시도가 가능하다.
+  특정 그룹(wheel, sudo)에 속한 사용자만 su를 쓸 수 있도록 제한해야 한다.
+
+check:
+  type: command
+  command: "grep -E 'pam_wheel.so' /etc/pam.d/su | grep -v '^\\s*#'"
+
+evaluate:
+  type: regex_match
+  pattern: 'pam_wheel\.so'
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/pam.d/su 파일에서 auth required pam_wheel.so use_uid 항목의
+  주석을 해제하고, 허용할 사용자를 wheel(또는 sudo) 그룹에 추가한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

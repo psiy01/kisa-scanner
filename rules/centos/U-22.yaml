@@ -1,0 +1,24 @@
+id: U-22
+category: 파일및디렉터리관리
+title: root 홈 디렉터리 권한 설정
+severity: medium
+os: [ubuntu]
+
+description: |
+  root 홈 디렉터리에는 SSH 키, 이력 파일 등 민감 정보가 있다.
+  일반 사용자가 접근할 수 있으면 안 된다. 권한은 700 이하여야 한다.
+
+check:
+  type: command
+  command: "stat -c '%a' /root"
+
+evaluate:
+  type: permission_check
+  max_permission: 700
+  on_match: safe
+  on_empty: error
+
+remediation: |
+  chmod 700 /root
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

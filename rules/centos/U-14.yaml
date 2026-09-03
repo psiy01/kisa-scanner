@@ -1,0 +1,26 @@
+id: U-14
+category: 파일및디렉터리관리
+title: /etc/shadow 파일 소유자 및 권한 설정
+severity: high
+os: [ubuntu]
+
+description: |
+  /etc/shadow 에는 암호화된 패스워드가 저장되어 있다.
+  일반 사용자가 읽을 수 있으면 해시를 탈취해 오프라인 크래킹이 가능하다.
+  소유자는 root, 권한은 400 이하여야 한다.
+
+check:
+  type: command
+  command: "stat -c '%a' /etc/shadow"
+
+evaluate:
+  type: permission_check
+  max_permission: 400
+  on_match: safe
+  on_empty: error
+
+remediation: |
+  chown root:root /etc/shadow
+  chmod 400 /etc/shadow
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

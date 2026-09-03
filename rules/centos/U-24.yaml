@@ -1,0 +1,24 @@
+id: U-24
+category: 파일및디렉터리관리
+title: 홈 디렉터리가 존재하지 않는 계정 점검
+severity: low
+os: [ubuntu]
+
+description: |
+  홈 디렉터리가 없는 계정으로 로그인하면 / 디렉터리가 홈이 되어
+  루트 디렉터리에 임의 파일이 생성될 수 있다.
+
+check:
+  type: command
+  command: "awk -F: '$3 >= 1000 && $3 < 65534 {print $6}' /etc/passwd | while read d; do [ -d \"$d\" ] || echo \"$d\"; done"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  계정의 홈 디렉터리를 생성하거나, 불필요한 계정이면 삭제한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

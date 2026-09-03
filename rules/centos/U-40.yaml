@@ -1,0 +1,25 @@
+id: U-40
+category: 로그관리
+title: su 명령 사용 로그 기록 설정
+severity: medium
+os: [ubuntu]
+
+description: |
+  권한 상승 시도는 침해사고 분석의 핵심 단서다.
+  su 사용 내역이 기록되지 않으면 공격자의 권한 획득 경로를 추적할 수 없다.
+
+check:
+  type: command
+  command: "ls /var/log/secure 2>/dev/null"
+
+evaluate:
+  type: regex_match
+  pattern: '\S'
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/rsyslog.conf 에 auth,authpriv.* /var/log/auth.log 설정을 추가하고
+  rsyslog를 재시작한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

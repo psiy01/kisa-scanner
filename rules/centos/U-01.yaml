@@ -1,0 +1,25 @@
+id: U-01
+category: 계정관리
+title: root 계정 원격 접속 제한
+severity: high
+os: [ubuntu]
+
+description: |
+  root 계정으로 SSH 직접 로그인이 가능하면 무차별 대입 공격의 표적이 되고,
+  접속 주체를 특정할 수 없어 사후 추적이 어렵다.
+
+check:
+  type: command
+  command: "grep -Ei '^\\s*PermitRootLogin' /etc/ssh/sshd_config | grep -v '^\\s*#'"
+
+evaluate:
+  type: regex_match
+  pattern: '(?i)PermitRootLogin\s+yes'
+  on_match: vulnerable
+  on_empty: safe
+
+remediation: |
+  /etc/ssh/sshd_config 파일에서 PermitRootLogin no 로 설정한 후
+  SSH 서비스를 재시작한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

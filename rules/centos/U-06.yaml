@@ -1,0 +1,27 @@
+id: U-06
+category: 계정관리
+title: 계정 잠금 임계값 설정
+severity: medium
+os: [ubuntu]
+
+description: |
+  로그인 실패 횟수 제한이 없으면 무차별 대입 공격을 무한정 시도할 수 있다.
+  일정 횟수 실패 시 계정을 잠그도록 설정해야 한다.
+
+check:
+  type: command
+  command: "grep -E 'deny\\s*=' /etc/pam.d/system-auth /etc/pam.d/password-auth 2>/dev/null | grep -v '^\\s*#'"
+
+evaluate:
+  type: numeric_compare
+  extract: 'deny\s*=\s*(\d+)'
+  operator: "<="
+  value: 10
+  on_match: safe
+  on_empty: vulnerable
+
+remediation: |
+  /etc/pam.d/common-auth 에 pam_tally2 또는 pam_faillock 모듈을 추가하고
+  deny=5 등 임계값을 설정한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

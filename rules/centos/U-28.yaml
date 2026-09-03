@@ -1,0 +1,25 @@
+id: U-28
+category: 서비스관리
+title: SSH 빈 패스워드 허용 여부
+severity: high
+os: [ubuntu]
+
+description: |
+  PermitEmptyPasswords가 yes이면 패스워드 없는 계정으로
+  원격 접속이 가능해진다.
+
+check:
+  type: command
+  command: "sshd -T 2>/dev/null | grep -i permitemptypasswords"
+
+evaluate:
+  type: regex_match
+  pattern: '(?i)permitemptypasswords\s+yes'
+  on_match: vulnerable
+  on_empty: error
+
+remediation: |
+  /etc/ssh/sshd_config 에서 PermitEmptyPasswords no 로 설정 후
+  SSH 서비스를 재시작한다.
+
+reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드
