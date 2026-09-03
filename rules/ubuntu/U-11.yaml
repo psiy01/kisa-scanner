@@ -3,23 +3,25 @@ category: 계정관리
 title: 관리자 그룹에 불필요한 계정 포함 여부
 severity: medium
 os: [ubuntu]
+manual_review: true
 
 description: |
-  sudo 그룹에 속한 계정은 사실상 관리자 권한을 갖는다.
-  최소 권한 원칙에 따라 필요한 계정만 포함되어야 한다.
+  sudo 그룹 구성원은 사실상 관리자 권한을 갖는다. 최소 권한 원칙에 따라
+  필요한 계정만 포함되어야 하나, 각 계정의 필요 여부는 조직의 업무 맥락에
+  따라 달라지므로 자동 판정이 불가능하다. 담당자 확인이 필요하다.
 
 check:
   type: command
-  command: "grep -E '^sudo:' /etc/group | awk -F: '{print $4}'"
+  command: "getent group sudo | awk -F: '{print $4}'"
 
 evaluate:
   type: regex_match
-  pattern: '^\s*$'
-  on_match: safe
+  pattern: '\S'
+  on_match: vulnerable
   on_empty: safe
 
 remediation: |
-  getent group sudo 로 구성원을 확인하고, 불필요한 계정은
-  gpasswd -d <계정> sudo 로 제거한다.
+  구성원 목록을 담당자와 검토하여 불필요한 계정을 제거한다.
+  gpasswd -d <계정> sudo
 
 reference: KISA 주요정보통신기반시설 기술적 취약점 분석·평가 상세가이드

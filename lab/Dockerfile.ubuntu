@@ -3,7 +3,11 @@
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y openssh-server sudo vim net-tools && \
+    apt-get install -y openssh-server sudo vim net-tools iproute2 && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && \
+    apt-get install -y telnetd vsftpd rsh-server xinetd cron rsyslog || true && \
     rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /var/run/sshd
@@ -18,9 +22,6 @@ RUN chmod 644 /etc/shadow
 RUN mkdir -p /opt/app && touch /opt/app/config.ini && chmod 777 /opt/app/config.ini
 RUN touch /opt/orphan.txt && chown 9999:9999 /opt/orphan.txt
 RUN cp /bin/find /usr/local/bin/find-suid && chmod 4755 /usr/local/bin/find-suid
-RUN apt-get update && \
-    apt-get install -y telnetd vsftpd rsh-server xinetd cron rsyslog || true && \
-    rm -rf /var/lib/apt/lists/*
 
 RUN echo 'root' > /etc/ftpusers || true
 RUN rm -f /etc/cron.allow /etc/at.allow || true

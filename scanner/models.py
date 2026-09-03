@@ -8,6 +8,7 @@ class Status(str, Enum):
     SAFE = "양호"
     VULNERABLE = "취약"
     ERROR = "점검불가"
+    REVIEW = "수동확인"
 
 
 @dataclass
@@ -21,6 +22,7 @@ class Rule:
     evaluate: dict[str, Any]
     remediation: str
     reference: str = ""
+    manual_review: bool = False
 
     @classmethod
     def from_dict(cls, data: dict) -> "Rule":
@@ -34,6 +36,7 @@ class Rule:
             evaluate=data["evaluate"],
             remediation=data.get("remediation", "").strip(),
             reference=data.get("reference", ""),
+            manual_review=data.get("manual_review", False),
         )
 
 
@@ -43,6 +46,7 @@ class Result:
     status: Status
     raw_output: str
     message: str = ""
+
 
 def result_to_dict(result: "Result") -> dict:
     """Result 객체를 JSON 직렬화 가능한 딕셔너리로 변환."""
@@ -55,6 +59,7 @@ def result_to_dict(result: "Result") -> dict:
         "description": result.rule.description,
         "remediation": result.rule.remediation,
         "reference": result.rule.reference,
+        "manual_review": result.rule.manual_review,
         "command": result.rule.check.get("command", ""),
         "raw_output": result.raw_output,
         "message": result.message,

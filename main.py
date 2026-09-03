@@ -18,6 +18,7 @@ STATUS_STYLE = {
     Status.SAFE: "green",
     Status.VULNERABLE: "red",
     Status.ERROR: "yellow",
+    Status.REVIEW: "cyan",
 }
 
 

@@ -39,6 +39,20 @@ def evaluate(output: str, exit_code: int, spec: dict) -> Status:
         maximum = int(str(spec["max_permission"]), 8)
         # 허용 범위를 넘는 비트가 하나라도 켜져 있으면 위반
         matched = (actual & ~maximum) == 0
+    elif eval_type == "port_exposure":
+        port = spec["port"]
+        external, loopback = [], []
+        for line in output.splitlines():
+            addr = line.strip()
+            if not addr.endswith(f":{port}"):
+                continue
+            host = addr.rsplit(":", 1)[0]
+            if host.startswith("127.") or host in ("::1", "[::1]"):
+                loopback.append(addr)
+            else:
+                external.append(addr)
+        # 외부 노출이 있을 때만 취약
+        matched = bool(external)
     else:
         return Status.ERROR
 

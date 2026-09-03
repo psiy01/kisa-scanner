@@ -10,7 +10,7 @@ description: |
 
 check:
   type: command
-  command: "grep -E '^sudo:' /etc/group | awk -F: '{print $4}'"
+  command: "getent group wheel | awk -F: '{print $4}'"
 
 evaluate:
   type: regex_match

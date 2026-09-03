@@ -42,6 +42,15 @@ def run_scan(executor: Executor, rules: list[Rule]) -> list[Result]:
                 continue
 
             output, exit_code = executor.run(rule.check["command"])
+
+            # 수동 확인 항목은 자동 판정하지 않고 근거만 수집
+            if rule.manual_review:
+                results.append(Result(
+                    rule=rule, status=Status.REVIEW, raw_output=output,
+                    message="담당자 확인 필요",
+                ))
+                continue
+
             status = evaluate(output, exit_code, rule.evaluate)
             results.append(Result(rule=rule, status=status, raw_output=output))
         except Exception as exc:

@@ -7,15 +7,17 @@ os: [ubuntu]
 description: |
   telnet은 아이디, 패스워드, 명령어를 모두 평문으로 전송한다.
   네트워크 스니핑으로 자격증명이 그대로 노출되므로 SSH로 대체해야 한다.
+  단, 루프백(127.0.0.1)에만 바인딩된 경우 외부 접근이 불가능하므로
+  위험도가 낮다고 판단한다.
 
 check:
   type: command
   requires: [ss]
-  command: "ss -tln 2>/dev/null | awk '{print $4}' | grep -E ':23$'"
+  command: "ss -tln 2>/dev/null | awk 'NR>1 {print $4}'"
 
 evaluate:
-  type: regex_match
-  pattern: '\S'
+  type: port_exposure
+  port: 23
   on_match: vulnerable
   on_empty: safe
 
