@@ -47,19 +47,19 @@ Ubuntu(Debian 계열)와 Rocky Linux(RHEL 계열)를 지원합니다.
 ```mermaid
 flowchart LR
     subgraph rules["룰 (YAML)"]
-        R1["rules/ubuntu/<br/>45개"]
-        R2["rules/centos/<br/>45개"]
+        R1["rules/ubuntu<br/>45개"]
+        R2["rules/centos<br/>45개"]
     end
 
     subgraph engine["진단 엔진"]
         E1["engine.py<br/>룰 로딩·실행"]
-        E2["executor.py<br/>SSH/로컬 추상화"]
-        E3["evaluator.py<br/>판정 (6종)"]
+        E2["executor.py<br/>SSH·로컬 추상화"]
+        E3["evaluator.py<br/>판정 6종"]
     end
 
     subgraph target["진단 대상"]
-        T1["Ubuntu 22.04<br/>:2222"]
-        T2["Rocky Linux 9<br/>:2223"]
+        T1["Ubuntu 22.04<br/>포트 2222"]
+        T2["Rocky Linux 9<br/>포트 2223"]
     end
 
     subgraph output["산출물"]
@@ -68,10 +68,13 @@ flowchart LR
         O3["비교 리포트"]
     end
 
-    rules --> E1
+    R1 --> E1
+    R2 --> E1
     E1 --> E2
-    E2 -->|SSH| target
-    target -->|명령 출력| E3
+    E2 --> T1
+    E2 --> T2
+    T1 --> E3
+    T2 --> E3
     E3 --> O1
     E3 --> O2
     O2 --> O3
