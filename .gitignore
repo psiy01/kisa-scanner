@@ -20,3 +20,7 @@ output/
 # OS
 Thumbs.db
 .DS_Store
+
+# 스크린샷 (로컬 경로·계정명 노출 가능)
+docs/screenshots/*
+!docs/screenshots/readme-*.png
